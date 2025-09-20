@@ -1,5 +1,6 @@
 package io.github.jason13official.telecir;
 
+import io.github.jason13official.telecir.impl.server.logic.CircleManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -23,7 +24,9 @@ public class TeleCirServer {
     }
 
     Constants.LOG.info("Retrieving data storage from level {}: ", level.dimension());
-    Constants.LOG.info(level.getDataStorage().toString());
+    // Constants.LOG.info(level.getDataStorage().toString());
+    CircleManager manager = CircleManager.getState(server);
+    Constants.LOG.info(manager.toString());
   }
 
   public static TeleCirServer getInstance() {

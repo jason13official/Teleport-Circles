@@ -8,7 +8,8 @@ import net.minecraft.world.level.Level;
 public record CircleRecord(String name, String dimension, Long position, Boolean activated) {
 
   // alternative to canonical constructor
-  public CircleRecord(String name, ResourceKey<Level> dimension, BlockPos position, Boolean activated) {
+  public CircleRecord(String name, ResourceKey<Level> dimension, BlockPos position,
+      Boolean activated) {
     this(name, dimension.location().toString(), position.asLong(), activated);
   }
 
@@ -19,7 +20,8 @@ public record CircleRecord(String name, String dimension, Long position, Boolean
   }
 
   // alternative to canonical constructor
-  public static CircleRecord of(String name, ResourceKey<Level> dimension, BlockPos position, Boolean activated) {
+  public static CircleRecord of(String name, ResourceKey<Level> dimension, BlockPos position,
+      Boolean activated) {
     return new CircleRecord(name, dimension.location().toString(), position.asLong(), activated);
   }
 }

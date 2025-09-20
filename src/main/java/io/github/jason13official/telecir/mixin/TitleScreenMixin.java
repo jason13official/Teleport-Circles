@@ -12,6 +12,6 @@ public class TitleScreenMixin {
 
   @Inject(at = @At("HEAD"), method = "init()V")
   private void telecir$init(CallbackInfo info) {
-		Constants.LOG.info("TitleScreen#init called at {}", System.currentTimeMillis());
+    Constants.LOG.info("TitleScreen#init called at {}", System.currentTimeMillis());
   }
 }
