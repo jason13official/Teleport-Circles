@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "telecir",
+	"version": "${version}",
+	"name": "Teleport Circles",
+	"description": "A modpack developer and map maker's tool for creating easy-to-use teleportation networks.",
+	"authors": [
+		"Stohun",
+		"Jason13"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/jason13official/Teleport-Circles"
+	},
+	"license": "Unlicense",
+	"icon": "assets/telecir/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"io.github.jason13official.telecir.TeleportCircles"
+		],
+		"client": [
+			"io.github.jason13official.telecir.TeleportCirclesClient"
+		]
+	},
+	"mixins": [
+		"telecir.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.17.2",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
