@@ -3,7 +3,11 @@
 	"package": "io.github.jason13official.telecir.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
+	],
+	"client": [
     "TitleScreenMixin"
+	],
+	"server": [
 	],
 	"injectors": {
 		"defaultRequire": 1
