@@ -2,7 +2,7 @@ package io.github.jason13official.telecir;
 
 import net.fabricmc.api.ClientModInitializer;
 
-public class TeleportCirclesClient implements ClientModInitializer {
+public class TeleCirClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
