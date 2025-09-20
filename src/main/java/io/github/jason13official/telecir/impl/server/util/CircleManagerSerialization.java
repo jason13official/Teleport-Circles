@@ -25,7 +25,7 @@ public class CircleManagerSerialization {
     return new CircleRecord(name, dimension, position, activated);
   }
 
-  public static CompoundTag storeCircleMapWithUuidTags(
+  public static CompoundTag storeRecords(
       LinkedHashMap<UUID, CircleRecord> circleMap) {
     CompoundTag rootTag = new CompoundTag();
     CompoundTag dataTag = new CompoundTag();
@@ -45,7 +45,7 @@ public class CircleManagerSerialization {
     return rootTag;
   }
 
-  public static LinkedHashMap<UUID, CircleRecord> loadCircleMapWithUuidTags(CompoundTag rootTag) {
+  public static LinkedHashMap<UUID, CircleRecord> loadRecords(CompoundTag rootTag) {
     LinkedHashMap<UUID, CircleRecord> circleMap = new LinkedHashMap<>();
 
     if (!rootTag.contains("circles")) {

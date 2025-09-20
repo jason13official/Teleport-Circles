@@ -32,7 +32,7 @@ public class CircleManager extends SavedData {
   }
 
   public static CircleManager build(CompoundTag compoundTag, Provider provider) {
-    return new CircleManager(CircleManagerSerialization.loadCircleMapWithUuidTags(compoundTag));
+    return new CircleManager(CircleManagerSerialization.loadRecords(compoundTag));
   }
 
   public static CircleManager getState(final MinecraftServer server) {
@@ -54,7 +54,7 @@ public class CircleManager extends SavedData {
 
   @Override
   public CompoundTag save(CompoundTag tag, Provider registries) {
-    return CircleManagerSerialization.storeCircleMapWithUuidTags(this.records);
+    return CircleManagerSerialization.storeRecords(this.records);
   }
 
   public LinkedHashMap<UUID, CircleRecord> getRecords() {
