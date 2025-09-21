@@ -1,8 +1,12 @@
 package io.github.jason13official.telecir.impl.common.entity;
 
+import io.github.jason13official.telecir.TeleCirClient;
 import io.github.jason13official.telecir.TeleCirServer;
+import io.github.jason13official.telecir.impl.client.screen.LocationTeleportScreen;
+import io.github.jason13official.telecir.impl.common.registry.ModEntities;
 import io.github.jason13official.telecir.impl.server.data.CircleRecord;
 import io.github.jason13official.telecir.impl.server.logic.CircleManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -22,6 +26,10 @@ public class TeleportCircle extends AbstractTeleportCircle {
 
   public static final EntityDataAccessor<Boolean> ACTIVATED = SynchedEntityData.defineId(
       TeleportCircle.class, EntityDataSerializers.BOOLEAN);
+
+  public TeleportCircle(final Level level) {
+    this(ModEntities.CIRCLE, level);
+  }
 
   public TeleportCircle(
       EntityType<? extends LivingEntity> entityType,
@@ -47,10 +55,13 @@ public class TeleportCircle extends AbstractTeleportCircle {
     this.setActivated(compound.getBoolean("activated"));
   }
 
-  @Override @SuppressWarnings("all")
+  @Override
   public InteractionResult interact(Player aPlayer, InteractionHand hand) {
 
-    if (activated() && aPlayer instanceof LocalPlayer player) {}
+    if (activated() && aPlayer instanceof LocalPlayer player) {
+      String name = TeleCirClient.SYNCED_CLIENT_MAP.get(this.getUUID()).name();
+      Minecraft.getInstance().setScreen(new LocationTeleportScreen(this.getUUID(), name));
+    }
 
     if (!activated() && aPlayer instanceof ServerPlayer player) {
 

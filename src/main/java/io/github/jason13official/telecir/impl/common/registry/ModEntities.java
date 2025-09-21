@@ -6,7 +6,7 @@ import net.minecraft.world.entity.MobCategory;
 
 public class ModEntities {
 
-  public static final EntityType<TeleportCircle> CIRCLE = EntityType.Builder.of(
+  public static final EntityType<TeleportCircle> CIRCLE = EntityType.Builder.<TeleportCircle>of(
           TeleportCircle::new, MobCategory.MISC)
       .sized(3.0f, 0.0625f)
       .fireImmune()
