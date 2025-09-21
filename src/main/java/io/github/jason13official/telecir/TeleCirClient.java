@@ -11,10 +11,10 @@ public class TeleCirClient implements ClientModInitializer {
 
   @Override
   public void onInitializeClient() {
-    Constants.LOG.info("Began client initialization.");
+    Constants.debug("Began client initialization.");
     EntityRendererRegistry.register(ModEntities.CIRCLE, TeleportCircleRenderer::new);
     EntityModelLayerRegistry.registerModelLayer(TeleportCircleRenderer.LAYER_LOCATION,
         TeleportCircleModel::createBodyLayer);
-    Constants.LOG.info("Ended client initialization.");
+    Constants.debug("Ended client initialization.");
   }
 }

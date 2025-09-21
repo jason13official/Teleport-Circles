@@ -20,9 +20,8 @@ public class TeleCir implements ModInitializer {
   }
 
   @Override
-  @SuppressWarnings("all")
   public void onInitialize() {
-    Constants.LOG.info("Began common initialization.");
+    Constants.debug("Began common initialization.");
 
     Registry.register(BuiltInRegistries.PARTICLE_TYPE, identifier("circle"), ModParticles.CIRCLE);
     Registry.register(BuiltInRegistries.ENTITY_TYPE, identifier("circle"), ModEntities.CIRCLE);
@@ -33,6 +32,6 @@ public class TeleCir implements ModInitializer {
     ServerTickEvents.START_SERVER_TICK.register(TeleCirServer::init);
     ServerLifecycleEvents.SERVER_STOPPING.register(TeleCirServer::dereference);
 
-    Constants.LOG.info("Ended common initialization.");
+    Constants.debug("Ended common initialization.");
   }
 }

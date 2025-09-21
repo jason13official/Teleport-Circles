@@ -11,6 +11,7 @@ public class TeleCirServer {
   private static boolean initialized;
 
   private final MinecraftServer server;
+  private final CircleManager manager;
 
   public TeleCirServer(final MinecraftServer server) {
 
@@ -23,10 +24,9 @@ public class TeleCirServer {
           this.getClass().getSimpleName() + " was unable to retrieve Level.OVERWORLD");
     }
 
-    Constants.LOG.info("Retrieving data storage from level {}: ", level.dimension());
-    // Constants.LOG.info(level.getDataStorage().toString());
-    CircleManager manager = CircleManager.getState(server);
-    Constants.LOG.info(manager.toString());
+    Constants.debug("Retrieving CircleManager from dimension data of {}: ", level.dimension());
+    this.manager = CircleManager.getState(server);
+    Constants.debug(this.manager.toString());
   }
 
   public static TeleCirServer getInstance() {
@@ -37,21 +37,25 @@ public class TeleCirServer {
     return getInstance().server;
   }
 
+  public static CircleManager getManager() {
+    return getInstance().manager;
+  }
+
   public static void init(final MinecraftServer server) {
     if (!initialized) {
-      Constants.LOG.info("Began server initialization.");
+      Constants.debug("Began server initialization.");
       TeleCirServer.instance = new TeleCirServer(server);
       initialized = true;
-      Constants.LOG.info("Ended server initialization.");
+      Constants.debug("Ended server initialization.");
     }
   }
 
   public static void dereference(final MinecraftServer server) {
     if (initialized) {
-      Constants.LOG.info("Began server dereferencing.");
+      Constants.debug("Began server dereferencing.");
       TeleCirServer.instance = null;
       initialized = false;
-      Constants.LOG.info("Ended server dereferencing.");
+      Constants.debug("Ended server dereferencing.");
     }
   }
 }

@@ -3,6 +3,7 @@ package io.github.jason13official.telecir.impl.server.logic;
 import io.github.jason13official.telecir.Constants;
 import io.github.jason13official.telecir.impl.server.data.CircleRecord;
 import io.github.jason13official.telecir.impl.server.util.CircleManagerSerialization;
+import io.github.jason13official.telecir.impl.server.util.CircleNameGenerator;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 import net.minecraft.core.HolderLookup.Provider;
@@ -19,6 +20,7 @@ public class CircleManager extends SavedData {
   private static final Factory<CircleManager> FACTORY = new Factory<CircleManager>(
       CircleManager::new, CircleManager::build, null);
 
+  public CircleNameGenerator generator = null;
   private LinkedHashMap<UUID, CircleRecord> records;
 
   public CircleManager() {
@@ -32,9 +34,13 @@ public class CircleManager extends SavedData {
   }
 
   public static CircleManager build(CompoundTag compoundTag, Provider provider) {
+
     return new CircleManager(CircleManagerSerialization.loadRecords(compoundTag));
   }
 
+  /**
+   * Has the side effect of initializing our name generator, and blacklisting used names.
+   */
   public static CircleManager getState(final MinecraftServer server) {
 
     ServerLevel overworld = server.getLevel(ServerLevel.OVERWORLD);
@@ -44,12 +50,19 @@ public class CircleManager extends SavedData {
           CircleManager.class.getSimpleName() + " was unable to retrieve Level.OVERWORLD");
     }
 
-    CircleManager state = overworld.getDataStorage()
+    CircleManager manager = overworld.getDataStorage()
         .computeIfAbsent(FACTORY, Constants.MOD_ID + "_data");
 
-    state.setDirty();
+    long seed = overworld.getSeed();
+    Constants.debug("Constructing new name generator instance with overworld seed {}", seed);
+    manager.generator = new CircleNameGenerator(seed);
 
-    return state;
+    Constants.debug("Adding used names from records to name generator blacklist");
+    manager.getRecords().forEach((id, record) -> manager.generator.addName(record.name()));
+
+    manager.setDirty();
+
+    return manager;
   }
 
   @Override
@@ -69,7 +82,7 @@ public class CircleManager extends SavedData {
     return this;
   }
 
-  public void setMapping(UUID uuid, CircleRecord record) {
+  public void addRecord(UUID uuid, CircleRecord record) {
     records.put(uuid, record);
   }
 

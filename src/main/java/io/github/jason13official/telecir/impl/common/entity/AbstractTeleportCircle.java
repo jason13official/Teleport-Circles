@@ -32,10 +32,10 @@ public abstract class AbstractTeleportCircle extends LivingEntity {
     this.remove(RemovalReason.DISCARDED);
 
     if (this.level() instanceof ServerLevel serverLevel) {
-      Constants.LOG.info("Began dereferencing circle {} {}", this.getDisplayName().getString(),
+      Constants.debug("Began dereferencing circle {} {}", this.getDisplayName().getString(),
           this.getStringUUID());
       // TODO impl circle manager update and sync packet
-      Constants.LOG.info("Ended dereferencing circle {} {}", this.getDisplayName().getString(),
+      Constants.debug("Ended dereferencing circle {} {}", this.getDisplayName().getString(),
           this.getStringUUID());
     }
   }

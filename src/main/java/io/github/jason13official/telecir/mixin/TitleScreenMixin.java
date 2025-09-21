@@ -14,7 +14,7 @@ public class TitleScreenMixin {
   @Inject(at = @At("HEAD"), method = "init()V")
   private void telecir$init(CallbackInfo info) {
     if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-      Constants.LOG.info("TitleScreen#init called at {}", System.currentTimeMillis());
+      Constants.debug("TitleScreen#init called at {}", System.currentTimeMillis());
     }
   }
 }
