@@ -4,6 +4,8 @@ import io.github.jason13official.telecir.Constants;
 import io.github.jason13official.telecir.TeleCirServer;
 import io.github.jason13official.telecir.impl.client.screen.LocationTeleportScreen;
 import io.github.jason13official.telecir.impl.common.network.packet.ManagerSyncS2CPacket;
+import io.github.jason13official.telecir.impl.common.registry.ModParticles;
+import io.github.jason13official.telecir.impl.common.util.RotationHelper;
 import io.github.jason13official.telecir.impl.server.data.CircleRecord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
@@ -18,15 +20,17 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import oshi.util.tuples.Pair;
 
 public class TeleportCircle extends AbstractTeleportCircle {
 
   public static final EntityDataAccessor<Boolean> ACTIVATED = SynchedEntityData.defineId(
       TeleportCircle.class, EntityDataSerializers.BOOLEAN);
 
-  public TeleportCircle(EntityType<?> entityType,
-      Level level) {
+  public TeleportCircle(EntityType<?> entityType, Level level) {
     super(entityType, level);
     this.blocksBuilding = true;
   }
@@ -79,7 +83,6 @@ public class TeleportCircle extends AbstractTeleportCircle {
 
     if (!this.level().isClientSide) {
 
-
       if (!this.activated()) {
         this.activated(true);
 
@@ -101,7 +104,10 @@ public class TeleportCircle extends AbstractTeleportCircle {
       return InteractionResult.PASS;
     } else {
 
-      Minecraft.getInstance().setScreen(new LocationTeleportScreen(this.getUUID(), this.getName().getString()));
+      if (this.activated()) {
+        Minecraft.getInstance()
+            .setScreen(new LocationTeleportScreen(this.getUUID(), this.getName().getString()));
+      }
 
       return InteractionResult.SUCCESS;
     }
@@ -116,18 +122,56 @@ public class TeleportCircle extends AbstractTeleportCircle {
     }
 
     if (TeleCirServer.getInstance() == null) {
-      TeleCirServer.PRELOAD.put(this.getUUID(), new CircleRecord(name.getString(), this.level().dimension(), this.position(), this.activated()));
+      TeleCirServer.PRELOAD.put(this.getUUID(),
+          new CircleRecord(name.getString(), this.level().dimension(), this.position(),
+              this.activated()));
       Constants.debug("Added circle to preload map");
     } else {
-      TeleCirServer.getManager().setMapping(this.getUUID(), new CircleRecord(name.getString(), this.level().dimension(), this.position(), this.activated()));
+      TeleCirServer.getManager().setMapping(this.getUUID(),
+          new CircleRecord(name.getString(), this.level().dimension(), this.position(),
+              this.activated()));
     }
   }
 
   @Override
   public void tick() {
     super.tick();
+
     if (activated()) {
       this.setYRot((this.getYRot() + 1.0f) % 360.0f);
+    }
+
+    if (!(this.level() instanceof ServerLevel level)) {
+      return;
+    }
+
+    final Vec3 offset = this.position().add(0, this.getBbHeight() / 2.0, 0);
+    final double halfWidth = 1.0D;
+    final double height = 2.0D;
+
+    // Create the original bounding box
+    final AABB originalBox = new AABB(offset.x - halfWidth, offset.y, offset.z - halfWidth,
+        offset.x + halfWidth, offset.y + height, offset.z + halfWidth);
+
+    // Rotate the bounding box around the center point
+    // Using the entity's Y rotation converted to radians
+    final double yRotationRadians = Math.toRadians(this.getYRot());
+    final Vec3 rotationCenter = new Vec3(offset.x, offset.y, offset.z); // Bottom-center of the box
+
+    // get rotated vertices for rendering
+    final Vec3[] rotatedVertices = RotationHelper.rotateAABBCorners(originalBox.minX, originalBox.minY, originalBox.minZ, originalBox.maxX, originalBox.maxY,
+        originalBox.maxZ, rotationCenter, 0, yRotationRadians, 0);
+
+    // Render rotated bounding box vertices
+//    for (Vec3 pos : rotatedVertices) {
+//      level.sendParticles(ModParticles.CIRCLE, pos.x, pos.y, pos.z, 1, 0, 0, 0, 0.01);
+//    }
+
+    // only render half of the vertices
+    for (int i = 0; i <= rotatedVertices.length; i++) {
+      switch (i) {
+        case 0, 1, 4, 5 -> level.sendParticles(ModParticles.CIRCLE, rotatedVertices[i].x, rotatedVertices[i].y + 0.0625D, rotatedVertices[i].z, 1, 0, 0, 0, 0.01);
+      }
     }
   }
 }
