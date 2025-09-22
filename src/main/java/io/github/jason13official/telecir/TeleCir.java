@@ -1,13 +1,19 @@
 package io.github.jason13official.telecir;
 
+import io.github.jason13official.telecir.impl.common.network.packet.EntityRenameC2SPacket;
+import io.github.jason13official.telecir.impl.common.network.packet.ManagerSyncS2CPacket;
+import io.github.jason13official.telecir.impl.common.network.packet.TeleportC2SPacket;
 import io.github.jason13official.telecir.impl.common.registry.ModCommands;
 import io.github.jason13official.telecir.impl.common.registry.ModEntities;
 import io.github.jason13official.telecir.impl.common.registry.ModParticles;
 import io.github.jason13official.telecir.impl.common.util.ModConfiguration;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.core.Registry;
@@ -74,7 +80,17 @@ public class TeleCir implements ModInitializer {
 
     CommandRegistrationCallback.EVENT.register(ModCommands::register);
 
-    // TODO sync when player joins world
+    PayloadTypeRegistry.playS2C().register(ManagerSyncS2CPacket.TYPE, ManagerSyncS2CPacket.CODEC);
+    PayloadTypeRegistry.playC2S().register(EntityRenameC2SPacket.TYPE, EntityRenameC2SPacket.CODEC);
+    PayloadTypeRegistry.playC2S().register(TeleportC2SPacket.TYPE, TeleportC2SPacket.CODEC);
+
+    ServerPlayNetworking.registerGlobalReceiver(EntityRenameC2SPacket.TYPE,
+        EntityRenameC2SPacket::handleOnServer);
+
+    ServerPlayNetworking.registerGlobalReceiver(TeleportC2SPacket.TYPE,
+        TeleportC2SPacket::handleOnServer);
+
+    ServerEntityEvents.ENTITY_LOAD.register(ManagerSyncS2CPacket::createAndSend);
 
     Constants.debug("Ended common initialization.");
     long total = System.currentTimeMillis() - start;

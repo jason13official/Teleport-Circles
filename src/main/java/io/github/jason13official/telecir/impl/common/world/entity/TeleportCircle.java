@@ -2,13 +2,17 @@ package io.github.jason13official.telecir.impl.common.world.entity;
 
 import io.github.jason13official.telecir.Constants;
 import io.github.jason13official.telecir.TeleCirServer;
+import io.github.jason13official.telecir.impl.client.screen.LocationTeleportScreen;
+import io.github.jason13official.telecir.impl.common.network.packet.ManagerSyncS2CPacket;
 import io.github.jason13official.telecir.impl.server.data.CircleRecord;
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.network.syncher.SynchedEntityData.Builder;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
@@ -61,7 +65,13 @@ public class TeleportCircle extends AbstractTeleportCircle {
 
     super.kill();
 
-    // TODO send sync packet to all players
+    if (this.level() instanceof ServerLevel serverLevel) {
+      serverLevel.getServer().getAllLevels().forEach(level -> {
+        level.players().forEach(serverPlayer -> {
+          ManagerSyncS2CPacket.createAndSend(serverPlayer, level);
+        });
+      });
+    }
   }
 
   @Override
@@ -78,16 +88,20 @@ public class TeleportCircle extends AbstractTeleportCircle {
         // also sets the mapping on the logical side
         this.setCustomName(Component.literal(name));
 
-        // TeleCirServer.getManager().setMapping(this.uuid, new CircleRecord(this.getName().getString(), this.level().dimension(), this.position(), this.activated()));
-
-        // TODO sync to all players
+        if (this.level() instanceof ServerLevel serverLevel) {
+          serverLevel.getServer().getAllLevels().forEach(level -> {
+            level.players().forEach(serverPlayer -> {
+              ManagerSyncS2CPacket.createAndSend(serverPlayer, level);
+            });
+          });
+        }
       }
 
       Constants.debug("interacted with teleport circle on logical side successfully");
       return InteractionResult.PASS;
     } else {
 
-      // TODO open screen here
+      Minecraft.getInstance().setScreen(new LocationTeleportScreen(this.getUUID(), this.getName().getString()));
 
       return InteractionResult.SUCCESS;
     }
