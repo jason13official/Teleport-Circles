@@ -11,7 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 
-
+/** CircleManager instances should be directly linked to the server instance of the mod */
 public class CircleManager extends UniqueNameGenerator {
 
   private static final Factory<CircleManager> FACTORY = new Factory<CircleManager>(
@@ -53,7 +53,7 @@ public class CircleManager extends UniqueNameGenerator {
   }
 
   public void setMapping(UUID id, CircleRecord record) {
-    blacklistName(record.name());
+    blacklistNameForGenerator(record.name());
     records.put(id, record);
   }
 

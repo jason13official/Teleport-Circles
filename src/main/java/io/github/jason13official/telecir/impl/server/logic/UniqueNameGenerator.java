@@ -149,12 +149,12 @@ public abstract class UniqueNameGenerator extends SavedData {
   }
 
 
-  public final boolean releaseName(String name) {
-    return usedNames.remove(name);
+  public final void releaseName(String name) {
+    usedNames.remove(name);
   }
 
-  public final boolean blacklistName(String name) {
-    return usedNames.add(name);
+  public final void blacklistNameForGenerator(String name) {
+    usedNames.add(name);
   }
 
 }
