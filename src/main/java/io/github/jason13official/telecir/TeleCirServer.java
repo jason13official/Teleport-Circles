@@ -1,7 +1,11 @@
 package io.github.jason13official.telecir;
 
+import io.github.jason13official.telecir.impl.common.util.ModConfiguration;
 import io.github.jason13official.telecir.impl.server.data.CircleRecord;
 import io.github.jason13official.telecir.impl.server.logic.CircleManager;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -20,6 +24,8 @@ public class TeleCirServer {
   private final Function<MinecraftServer, CircleManager> manager = CircleManager::getState;
 
   public TeleCirServer(final MinecraftServer server) {
+
+    instance = this; // allows early references during initialization
 
     this.server = server;
     this.seed = Objects.requireNonNull(server.getLevel(Level.OVERWORLD)).getSeed();

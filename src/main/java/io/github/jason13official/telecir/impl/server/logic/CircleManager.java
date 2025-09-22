@@ -23,18 +23,27 @@ public class CircleManager extends UniqueNameGenerator {
 
   private CircleManager() {
     this(TeleCirServer.getSeed());
+
+    Constants.debug("Created new CircleManager instance with server seed");
   }
 
   public CircleManager(long seed) {
     this(seed, new LinkedHashMap<>());
+
+    Constants.debug("Created new CircleManager instance with server seed and empty map");
   }
 
   public CircleManager(long seed, LinkedHashMap<UUID, CircleRecord> records) {
     super(seed);
     this.records = records;
+
+    Constants.debug("Created new CircleManager instance with server seed and filled map");
   }
 
   public static CircleManager build(CompoundTag compoundTag, Provider provider) {
+
+    Constants.debug("Building new CircleManager instance from server seed and CompoundTag");
+
     return new CircleManager(TeleCirServer.getSeed(),
         CircleRecordStorageHelper.loadCircles(compoundTag));
   }
@@ -66,14 +75,16 @@ public class CircleManager extends UniqueNameGenerator {
     return this;
   }
 
-  public void killed(UUID uuid) {
-    try {
-      // if the circle was activated/named, we need to release the name and remove the record
-      // otherwise, the entity is just killed normally.
-      if (this.records.containsKey(uuid)) this.releaseName(this.records.remove(uuid).name());
-    } catch (Exception e) {
-      Constants.debug(e.getMessage());
-      Constants.debug(String.valueOf(e.getCause()));
+  public void dereference(UUID id) {
+    if (this.records.containsKey(id)) {
+
+      // remove returns the last mapped value. we checked that the record existed,
+      // so we should expect a non-null return
+      CircleRecord record = this.records.remove(id);
+
+      this.releaseName(record.name());
+
+      Constants.debug("dereferenced {} {}", id, record);
     }
   }
 

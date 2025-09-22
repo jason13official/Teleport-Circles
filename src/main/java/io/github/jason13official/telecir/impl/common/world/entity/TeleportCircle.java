@@ -1,7 +1,6 @@
 package io.github.jason13official.telecir.impl.common.world.entity;
 
 import io.github.jason13official.telecir.Constants;
-import io.github.jason13official.telecir.TeleCir;
 import io.github.jason13official.telecir.TeleCirServer;
 import io.github.jason13official.telecir.impl.server.data.CircleRecord;
 import net.minecraft.nbt.CompoundTag;
@@ -57,7 +56,7 @@ public class TeleportCircle extends AbstractTeleportCircle {
   public void kill() {
 
     if (!this.level().isClientSide()) {
-      TeleCirServer.getManager().killed(this.getUUID());
+      TeleCirServer.getManager().dereference(this.getUUID());
     }
 
     super.kill();
@@ -104,6 +103,7 @@ public class TeleportCircle extends AbstractTeleportCircle {
 
     if (TeleCirServer.getInstance() == null) {
       TeleCirServer.PRELOAD.put(this.getUUID(), new CircleRecord(name.getString(), this.level().dimension(), this.position(), this.activated()));
+      Constants.debug("Added circle to preload map");
     } else {
       TeleCirServer.getManager().setMapping(this.getUUID(), new CircleRecord(name.getString(), this.level().dimension(), this.position(), this.activated()));
     }
