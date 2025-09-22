@@ -1,6 +1,7 @@
 package io.github.jason13official.telecir.mixin;
 
 import io.github.jason13official.telecir.Constants;
+import io.github.jason13official.telecir.TeleCir;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,7 +14,7 @@ public class TitleScreenMixin {
 
   @Inject(at = @At("HEAD"), method = "init()V")
   private void telecir$init(CallbackInfo info) {
-    if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
+    if (TeleCir.DEBUG) {
       Constants.debug("TitleScreen#init called at {}", System.currentTimeMillis());
     }
   }
