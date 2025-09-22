@@ -6,7 +6,7 @@ import net.minecraft.world.phys.Vec3;
 import oshi.util.tuples.Triplet;
 
 /**
- * All data required to recreate a named and activated circle in any dimension at a given position.
+ * All data required to recreate a named and activated circle in a dimension at a given position.
  *
  * @param name      the name of the circle
  * @param dimension the dimension the circle is located at
@@ -23,5 +23,20 @@ public record CircleRecord(String name, String dimension, Triplet<Double, Double
   public CircleRecord(String name, ResourceKey<Level> dimension, Vec3 position, Boolean activated) {
     this(name, dimension.location().toString(), new Triplet<>(position.x, position.y, position.z),
         activated);
+  }
+
+  @Override
+  public String toString() {
+    return "CircleRecord{" +
+        "name='" + name + '\'' +
+        ", dimension='" + dimension + '\'' +
+        ", position=" + formatted(position) +
+        ", activated=" + activated +
+        '}';
+  }
+
+  // (0,0,0)
+  private static String formatted(Triplet<Double, Double, Double> position) {
+    return "(" + position.getA() + "," + position.getB() + "," + position.getC() + ")";
   }
 }

@@ -11,7 +11,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 
-/** CircleManager instances should be directly linked to the server instance of the mod */
+/**
+ * CircleManager instances should be directly linked to the server instance of the mod
+ */
 public class CircleManager extends UniqueNameGenerator {
 
   private static final Factory<CircleManager> FACTORY = new Factory<CircleManager>(
@@ -55,11 +57,24 @@ public class CircleManager extends UniqueNameGenerator {
   public void setMapping(UUID id, CircleRecord record) {
     blacklistNameForGenerator(record.name());
     records.put(id, record);
+
+    Constants.debug("mapped {} {}", id, record);
   }
 
   public CircleManager dereference() {
     this.records = new LinkedHashMap<>();
     return this;
+  }
+
+  public void killed(UUID uuid) {
+    try {
+      // if the circle was activated/named, we need to release the name and remove the record
+      // otherwise, the entity is just killed normally.
+      if (this.records.containsKey(uuid)) this.releaseName(this.records.remove(uuid).name());
+    } catch (Exception e) {
+      Constants.debug(e.getMessage());
+      Constants.debug(String.valueOf(e.getCause()));
+    }
   }
 
   @Override

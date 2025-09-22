@@ -6,7 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 
@@ -30,7 +29,7 @@ public class TeleCirServer {
       PRELOAD.forEach((id, record) -> manager.apply(this.server).setMapping(id, record));
       PRELOAD.clear();
     }
-    Constants.debug("after preloading " + PRELOAD.toString());
+    Constants.debug("after preloading " + PRELOAD);
   }
 
   public static TeleCirServer getInstance() {
