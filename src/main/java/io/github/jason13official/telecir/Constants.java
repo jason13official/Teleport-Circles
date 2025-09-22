@@ -11,16 +11,25 @@ public class Constants {
 
   @SuppressWarnings("all")
   public static void debug(String message, Object obj1, Object obj2) {
-    if (TeleCir.DEBUG) LOG.info("[Debug] " + message, obj1, obj2);
+
+    if (TeleCir.DEBUG) {
+      LOG.info("[Debug] " + message, obj1, obj2);
+    }
   }
 
   @SuppressWarnings("all")
   public static void debug(String message, Object... varargs) {
-    if (TeleCir.DEBUG) LOG.info("[Debug] " + message, varargs);
+
+    if (TeleCir.DEBUG) {
+      LOG.info("[Debug] " + message, varargs);
+    }
   }
 
   @SuppressWarnings("all")
   public static void debug(String message) {
-    if (TeleCir.DEBUG) LOG.info("[Debug] " + message);
+
+    if (TeleCir.DEBUG) {
+      LOG.info("[Debug] " + message);
+    }
   }
 }
