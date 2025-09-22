@@ -1,6 +1,8 @@
 package io.github.jason13official.telecir.impl.common.entity;
 
 import io.github.jason13official.telecir.Constants;
+import io.github.jason13official.telecir.TeleCirServer;
+import io.github.jason13official.telecir.impl.common.network.packet.ManagerSyncS2CPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.server.level.ServerLevel;
@@ -19,9 +21,7 @@ public abstract class AbstractTeleportCircle extends LivingEntity {
 
   public static final Iterable<ItemStack> ARMOR_ITEMS = NonNullList.withSize(4, ItemStack.EMPTY);
 
-  public AbstractTeleportCircle(
-      EntityType<? extends LivingEntity> entityType,
-      Level level) {
+  public AbstractTeleportCircle(EntityType<? extends LivingEntity> entityType, Level level) {
     super(entityType, level);
   }
 
@@ -29,12 +29,17 @@ public abstract class AbstractTeleportCircle extends LivingEntity {
   public final void kill() {
 
     // super.kill();
-    this.remove(RemovalReason.DISCARDED);
 
     if (this.level() instanceof ServerLevel serverLevel) {
       Constants.debug("Began dereferencing circle {} {}", this.getDisplayName().getString(),
           this.getStringUUID());
-      // TODO impl circle manager update and sync packet
+
+      TeleCirServer.getManager().dereference(this.getUUID(), this.getName().getString());
+      this.remove(RemovalReason.DISCARDED);
+
+      serverLevel.getServer().getAllLevels().forEach(level -> level.players()
+          .forEach(player -> ManagerSyncS2CPacket.createAndSend(player, level)));
+
       Constants.debug("Ended dereferencing circle {} {}", this.getDisplayName().getString(),
           this.getStringUUID());
     }

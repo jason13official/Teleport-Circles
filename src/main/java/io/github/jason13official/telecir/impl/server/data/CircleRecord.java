@@ -13,11 +13,11 @@ public record CircleRecord(String name, String dimension, Long position, Boolean
     this(name, dimension.location().toString(), position.asLong(), activated);
   }
 
-  public CircleRecord {
-    if (List.of(this.name(), this.dimension(), this.position(), this.activated()).contains(null)) {
-      throw new IllegalStateException("Cannot accept null for any parameter of CircleRecord");
-    }
-  }
+//  public CircleRecord {
+//    if (List.of(this.name(), this.dimension(), this.position(), this.activated()).contains(null)) {
+//      throw new IllegalStateException("Cannot accept null for any parameter of CircleRecord");
+//    }
+//  }
 
   // alternative to canonical constructor
   public static CircleRecord of(String name, ResourceKey<Level> dimension, BlockPos position,

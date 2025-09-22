@@ -92,4 +92,9 @@ public class CircleManager extends SavedData {
         "records=" + records +
         '}';
   }
+
+  public void dereference(final UUID uuid, String name) {
+    this.records.remove(uuid);
+    this.generator.releaseName(name);
+  }
 }

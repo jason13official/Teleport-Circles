@@ -1,8 +1,10 @@
 package io.github.jason13official.telecir.impl.common.entity;
 
+import io.github.jason13official.telecir.Constants;
 import io.github.jason13official.telecir.TeleCirClient;
 import io.github.jason13official.telecir.TeleCirServer;
 import io.github.jason13official.telecir.impl.client.screen.LocationTeleportScreen;
+import io.github.jason13official.telecir.impl.common.network.packet.ManagerSyncS2CPacket;
 import io.github.jason13official.telecir.impl.common.registry.ModEntities;
 import io.github.jason13official.telecir.impl.server.data.CircleRecord;
 import io.github.jason13official.telecir.impl.server.logic.CircleManager;
@@ -65,17 +67,26 @@ public class TeleportCircle extends AbstractTeleportCircle {
 
     if (!activated() && aPlayer instanceof ServerPlayer player) {
 
+      this.setActivated(true);
+
       CircleManager manager = TeleCirServer.getManager();
 
       String name = manager.generator.generateName();
       this.setCustomName(Component.literal(name));
 
+      Constants.debug("attempting to create and send sync packet");
+      Constants.debug(name);
+      Constants.debug(String.valueOf(this.level().dimension()));
+      Constants.debug(String.valueOf(this.blockPosition()));
+      Constants.debug(String.valueOf(this.activated()));
+
       CircleRecord record = new CircleRecord(name, this.level().dimension(), this.blockPosition(), this.activated());
       manager.addRecord(this.getUUID(), record);
 
-      this.setActivated(true);
-
-      // TODO send synchronization packet
+      // synch newly activated circle to all players
+      player.serverLevel().getServer().getAllLevels().forEach(level -> level.players().forEach(otherPlayer -> {
+        ManagerSyncS2CPacket.createAndSend(otherPlayer, level);
+      }));
     }
 
     return InteractionResult.PASS;

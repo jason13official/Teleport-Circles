@@ -1,6 +1,8 @@
 package io.github.jason13official.telecir.impl.client.screen;
 
 import io.github.jason13official.telecir.Constants;
+import io.github.jason13official.telecir.impl.common.network.packet.EntityRenameC2SPacket;
+import io.github.jason13official.telecir.impl.common.network.packet.TeleportC2SPacket;
 import java.util.UUID;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.GuiGraphics;
@@ -71,8 +73,7 @@ public class LocationTeleportScreen extends Screen {
 
   private void onSearchChanged(String name) {
     this.currentSearchQuery = name;
-    // Services.PLATFORM.sendEntityRenamePacket(this.circleUUID, this.currentSearchQuery);
-    // TODO send entity rename packet
+    EntityRenameC2SPacket.createAndSend(this.circleUUID, this.currentSearchQuery);
   }
 
   @Override
@@ -116,8 +117,7 @@ public class LocationTeleportScreen extends Screen {
   }
 
   public void teleportToLocation(UUID uuid, String name, Long location) {
-    // Services.PLATFORM.requestTeleportTo(location);
-    // TODO request teleport packet
+    TeleportC2SPacket.createAndSend(location);
   }
 
   private boolean isMouseOverSearchFieldWithPadding(double mouseX, double mouseY) {

@@ -43,10 +43,13 @@ public class TeleCirServer {
 
   public static void init(final MinecraftServer server) {
     if (!initialized) {
+    long start = System.currentTimeMillis();
       Constants.debug("Began server initialization.");
       TeleCirServer.instance = new TeleCirServer(server);
       initialized = true;
       Constants.debug("Ended server initialization.");
+    long total = System.currentTimeMillis() - start;
+    Constants.debug("Server initialized in {}ms", total);
     }
   }
 
