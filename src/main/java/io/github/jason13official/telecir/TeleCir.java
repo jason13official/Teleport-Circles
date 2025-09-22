@@ -1,8 +1,11 @@
 package io.github.jason13official.telecir;
 
+import io.github.jason13official.telecir.impl.common.registry.ModCommands;
 import io.github.jason13official.telecir.impl.common.registry.ModEntities;
+import io.github.jason13official.telecir.impl.common.registry.ModParticles;
 import io.github.jason13official.telecir.impl.common.util.ModConfiguration;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -41,7 +44,7 @@ public class TeleCir implements ModInitializer {
 
     ResourceManagerHelper.get(PackType.SERVER_DATA)
         .registerReloadListener(new SimpleSynchronousResourceReloadListener() {
-          
+
           @Override
           public ResourceLocation getFabricId() {
             return identifier("server_reload");
@@ -64,9 +67,14 @@ public class TeleCir implements ModInitializer {
     TeleCir.registerResourceManagerReloadListeners();
 
     Registry.register(BuiltInRegistries.ENTITY_TYPE, identifier("circle"), ModEntities.CIRCLE);
+    Registry.register(BuiltInRegistries.PARTICLE_TYPE, identifier("circle"), ModParticles.CIRCLE);
 
     ServerTickEvents.START_SERVER_TICK.register(TeleCirServer::initializeOnFirstTick);
     ServerLifecycleEvents.SERVER_STOPPING.register(server -> TeleCirServer.dereference());
+
+    CommandRegistrationCallback.EVENT.register(ModCommands::register);
+
+    // TODO sync when player joins world
 
     Constants.debug("Ended common initialization.");
     long total = System.currentTimeMillis() - start;
