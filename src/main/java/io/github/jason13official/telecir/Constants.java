@@ -27,7 +27,7 @@ public class Constants {
   public static void debug(String message, Object obj1, Object obj2) {
 
     if (TeleCir.DEBUG) {
-      LOG.info("[Debug] " + message, obj1, obj2);
+      LOG.info("[TeleCir] " + message, obj1, obj2);
     }
   }
 
@@ -35,7 +35,7 @@ public class Constants {
   public static void debug(String message, Object... varargs) {
 
     if (TeleCir.DEBUG) {
-      LOG.info("[Debug] " + message, varargs);
+      LOG.info("[TeleCir] " + message, varargs);
     }
   }
 
@@ -43,7 +43,7 @@ public class Constants {
   public static void debug(String message) {
 
     if (TeleCir.DEBUG) {
-      LOG.info("[Debug] " + message);
+      LOG.info("[TeleCir] " + message);
     }
   }
 }

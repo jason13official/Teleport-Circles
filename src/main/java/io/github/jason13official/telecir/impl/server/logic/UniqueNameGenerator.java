@@ -10,7 +10,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 public abstract class UniqueNameGenerator extends SavedData {
 
   private final Random random;
-  private final Set<String> usedNames = new HashSet<>();
+  public final Set<String> usedNames = new HashSet<>();
   private final Map<String, String[]> vocab = new HashMap<>();
 
   public UniqueNameGenerator(long seed) {

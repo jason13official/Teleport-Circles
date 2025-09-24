@@ -1,5 +1,6 @@
 package io.github.jason13official.telecir.impl.client.screen;
 
+import io.github.jason13official.telecir.Constants;
 import io.github.jason13official.telecir.TeleCir;
 import io.github.jason13official.telecir.TeleCirClient;
 import io.github.jason13official.telecir.impl.client.screen.LocationList.Entry;
@@ -29,6 +30,8 @@ class LocationList extends ContainerObjectSelectionList<Entry> {
     // Populate entries from the map
     for (Map.Entry<UUID, CircleRecord> entry : TeleCirClient.synchronizedRecords
         .entrySet()) {
+
+      Constants.debug("iterated over " + entry.getKey().toString() + " named " + entry.getValue().name());
 
       // ensure we are not adding the same circle giving us the screen,
       // and that the added circles are activated

@@ -1,5 +1,6 @@
 package io.github.jason13official.telecir.impl.client.network.handler;
 
+import io.github.jason13official.telecir.Constants;
 import io.github.jason13official.telecir.TeleCirClient;
 import io.github.jason13official.telecir.impl.common.network.packet.ManagerSyncS2CPacket;
 import io.github.jason13official.telecir.impl.server.data.CircleRecord;
@@ -32,6 +33,8 @@ public class ManagerSyncClientHandler {
               new Vec3(packet.positions()[i].getA(), packet.positions()[i].getB(),
                   packet.positions()[i].getC()), packet.activated()[i]));
     }
+
+    Constants.debug("Final Synced Map {}", TeleCirClient.synchronizedRecords);
   }
 
   public static String[] splitResourceLocationSafe(String resourceLocationString) {

@@ -15,6 +15,16 @@ public abstract class AbstractTeleportCircle extends Entity {
   }
 
   @Override
+  protected boolean canRide(Entity vehicle) {
+    return false;
+  }
+
+  @Override
+  protected boolean canAddPassenger(Entity passenger) {
+    return false;
+  }
+
+  @Override
   public boolean isPickable() {
     return !this.isRemoved();
   }

@@ -58,7 +58,7 @@ public class TeleCirServer {
   }
 
   public static void initializeOnFirstTick(final MinecraftServer server) {
-    if (!initialized) {
+    if (!initialized && TeleCirServer.instance == null) {
       long start = System.currentTimeMillis();
       Constants.debug("Began server initialization.");
 
@@ -66,21 +66,25 @@ public class TeleCirServer {
       initialized = true;
 
       Constants.debug("Ended server initialization.");
+      Constants.debug("Server instance " + instance);
       long total = System.currentTimeMillis() - start;
       Constants.debug("Server initialized in {}ms", total);
     }
   }
 
   public static void dereference() {
-    if (initialized) {
+    if (initialized && TeleCirServer.instance != null) {
       long start = System.currentTimeMillis();
       Constants.debug("Began server dereferencing.");
+
+      Constants.debug("records in memory before dereference " + getManager().getRecords());
 
       TeleCirServer.PRELOAD = new LinkedHashMap<>();
       TeleCirServer.instance = null;
       initialized = false;
 
       Constants.debug("Ended server dereferencing.");
+      Constants.debug("Server instance " + instance);
       long total = System.currentTimeMillis() - start;
       Constants.debug("Server dereferenced in {}ms", total);
     }

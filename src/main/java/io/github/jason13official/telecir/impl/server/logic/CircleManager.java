@@ -44,8 +44,22 @@ public class CircleManager extends UniqueNameGenerator {
 
     Constants.debug("Building new CircleManager instance from server seed and CompoundTag");
 
-    return new CircleManager(TeleCirServer.getSeed(),
-        CircleRecordStorageHelper.loadCircles(compoundTag));
+    LinkedHashMap<UUID, CircleRecord> map = CircleRecordStorageHelper.loadCircles(compoundTag);
+
+    Constants.debug("empty map in memory????" + map.isEmpty());
+    Constants.debug("Final Re-Initialized Map: ", map);
+
+//    map.forEach((id, record) -> {
+//      this.blacklistNameForGenerator(record.name());
+//    });
+
+    var manager = new CircleManager(TeleCirServer.getSeed(), map);
+
+    map.forEach((id, record) -> {
+      if (!manager.usedNames.contains(record.name())) manager.blacklistNameForGenerator(record.name());
+    });
+
+    return manager;
   }
 
   public static CircleManager getState(final MinecraftServer server) {

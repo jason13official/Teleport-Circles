@@ -7,6 +7,7 @@ import io.github.jason13official.telecir.impl.common.network.packet.ManagerSyncS
 import io.github.jason13official.telecir.impl.common.registry.ModParticles;
 import io.github.jason13official.telecir.impl.common.util.RotationHelper;
 import io.github.jason13official.telecir.impl.server.data.CircleRecord;
+import io.netty.util.Constant;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -90,14 +91,15 @@ public class TeleportCircle extends AbstractTeleportCircle {
 
         // also sets the mapping on the logical side
         this.setCustomName(Component.literal(name));
+      }
 
-        if (this.level() instanceof ServerLevel serverLevel) {
-          serverLevel.getServer().getAllLevels().forEach(level -> {
-            level.players().forEach(serverPlayer -> {
-              ManagerSyncS2CPacket.createAndSend(serverPlayer, level);
-            });
+      Constants.debug("syncing all circles to all players");
+      if (this.level() instanceof ServerLevel serverLevel) {
+        serverLevel.getServer().getAllLevels().forEach(level -> {
+          level.players().forEach(serverPlayer -> {
+            ManagerSyncS2CPacket.createAndSend(serverPlayer, level);
           });
-        }
+        });
       }
 
       Constants.debug("interacted with teleport circle on logical side successfully");
@@ -120,6 +122,9 @@ public class TeleportCircle extends AbstractTeleportCircle {
     if (name == null || this.level().isClientSide()) {
       return;
     }
+
+    Constants.debug("Circle loaded from memory " + this.getStringUUID());
+    Constants.debug("Logical side of mod already initialized? " + String.valueOf(TeleCirServer.getInstance() != null));
 
     if (TeleCirServer.getInstance() == null) {
       TeleCirServer.PRELOAD.put(this.getUUID(),
