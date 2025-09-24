@@ -17,7 +17,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.network.chat.Component;
 import oshi.util.tuples.Triplet;
 
-class LocationList extends ContainerObjectSelectionList<Entry> {
+public class LocationList extends ContainerObjectSelectionList<Entry> {
 
   private static final int ITEM_HEIGHT = 25;
   final LocationTeleportScreen screen;
@@ -27,36 +27,75 @@ class LocationList extends ContainerObjectSelectionList<Entry> {
         screen.layout.getHeaderHeight(), ITEM_HEIGHT);
     this.screen = screen;
 
+    populateEntries();
+  }
+
+  private void populateEntries() {
+    // Validate synchronizedRecords state
+    if (TeleCirClient.synchronizedRecords == null || TeleCirClient.synchronizedRecords.isEmpty()) {
+      Constants.debug("synchronizedRecords is empty during LocationList population");
+      return;
+    }
+
+    Constants.debug("LocationList population: synchronizedRecords size = {}", TeleCirClient.synchronizedRecords.size());
+    Constants.debug("Current dimension: {}", getCurrentDimension());
+    Constants.debug("Current circle UUID: {}", this.screen.circleUUID);
+
     // Populate entries from the map
-    for (Map.Entry<UUID, CircleRecord> entry : TeleCirClient.synchronizedRecords
-        .entrySet()) {
+    for (Map.Entry<UUID, CircleRecord> entry : TeleCirClient.synchronizedRecords.entrySet()) {
+      Constants.debug("iterated over {} named {}", entry.getKey().toString(), entry.getValue().name());
 
-      Constants.debug("iterated over " + entry.getKey().toString() + " named " + entry.getValue().name());
-
-      // ensure we are not adding the same circle giving us the screen,
-      // and that the added circles are activated
-      if (!entry.getKey().equals(this.screen.circleUUID) && entry.getValue().activated()) {
-
-        // ensure the destination is in the same dimension
-        if (Minecraft.getInstance().level.dimension().location().toString().equalsIgnoreCase(entry.getValue().dimension())) {
-          this.addEntry(new LocationEntry(entry.getKey(), entry.getValue().name(),  // Display name
-              entry.getValue().position()  // Location ID
-          ));
-        }
+      if (shouldIncludeEntry(entry.getKey(), entry.getValue())) {
+        this.addEntry(new LocationEntry(entry.getKey(), entry.getValue().name(), entry.getValue().position()));
       }
     }
   }
 
-  public void refreshEntries() {
-    // Clear and repopulate entries
-    this.clearEntries();
-    for (Map.Entry<UUID, CircleRecord> entry : TeleCirClient.synchronizedRecords
-        .entrySet()) {
-      if (entry.getValue().activated()) {
-        this.addEntry(
-            new LocationEntry(entry.getKey(), entry.getValue().name(), entry.getValue().position()));
-      }
+  private boolean shouldIncludeEntry(UUID uuid, CircleRecord record) {
+    // Exclude current circle
+    if (uuid.equals(this.screen.circleUUID)) {
+      Constants.debug("Filtered out current circle: {}", record.name());
+      return false;
     }
+
+    // Only activated circles
+    if (!record.activated()) {
+      Constants.debug("Filtered out inactive circle: {}", record.name());
+      return false;
+    }
+
+    // Same dimension check
+    if (!isSameDimension(record.dimension())) {
+      Constants.debug("Filtered out different dimension circle: {} in {}", record.name(), record.dimension());
+      return false;
+    }
+
+    return true;
+  }
+
+  private String getCurrentDimension() {
+    try {
+      return Minecraft.getInstance().level.dimension().location().toString();
+    } catch (Exception e) {
+      Constants.debug("Error getting current dimension: {}", e.getMessage());
+      return "";
+    }
+  }
+
+  private boolean isSameDimension(String recordDimension) {
+    try {
+      String currentDimension = getCurrentDimension();
+      return java.util.Objects.equals(currentDimension, recordDimension);
+    } catch (Exception e) {
+      Constants.debug("Error comparing dimensions: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  public void refreshEntries() {
+    // Clear and repopulate entries using the same filtering logic as constructor
+    this.clearEntries();
+    populateEntries();
   }
 
   @Override

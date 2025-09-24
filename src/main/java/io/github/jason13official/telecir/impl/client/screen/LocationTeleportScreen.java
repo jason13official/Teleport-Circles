@@ -121,6 +121,10 @@ public class LocationTeleportScreen extends Screen {
     TeleportC2SPacket.createAndSend(location);
   }
 
+  public LocationList getLocationList() {
+    return this.locationList;
+  }
+
   private boolean isMouseOverSearchFieldWithPadding(double mouseX, double mouseY) {
     int paddedX = this.searchFieldX - 5;
     int paddedY = this.searchFieldY - 5;

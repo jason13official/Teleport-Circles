@@ -7,6 +7,7 @@ import io.github.jason13official.telecir.Constants;
 import io.github.jason13official.telecir.TeleCir;
 import io.github.jason13official.telecir.impl.client.model.CircleModel;
 import io.github.jason13official.telecir.impl.common.world.entity.TeleportCircle;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -44,7 +45,8 @@ public class CircleRenderer extends EntityRenderer<TeleportCircle> {
     poseStack.pushPose();
 
     // get the circle out of the ground
-    poseStack.translate(0.0F, 0.0625F, 0.0F);
+    // poseStack.translate(0.0F, 0.0625F, 0.0F);
+    poseStack.translate(0.0F, 0.0125F, 0.0F);
 
     // hack/fix copied from BoatRenderer...
     poseStack.scale(-1.0F, -1.0F, 1.0F);
@@ -59,7 +61,7 @@ public class CircleRenderer extends EntityRenderer<TeleportCircle> {
         this.model.renderType(getTextureLocation(circle)));
 
     // actually render
-    this.model.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+    this.model.renderToBuffer(poseStack, vertexConsumer, LightTexture.pack(15, 15), OverlayTexture.NO_OVERLAY);
 
     poseStack.popPose();
 

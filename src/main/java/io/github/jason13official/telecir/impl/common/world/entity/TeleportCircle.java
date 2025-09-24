@@ -43,7 +43,17 @@ public class TeleportCircle extends AbstractTeleportCircle {
 
   @Override
   protected void readAdditionalSaveData(CompoundTag compound) {
-    this.activated(compound.getBoolean("activated"));
+    boolean savedActivationState = compound.getBoolean("activated");
+    this.activated(savedActivationState);
+
+    Constants.debug("Restored activation state for circle {} to {}", this.getStringUUID(), savedActivationState);
+
+    // Update the circle record if the server is initialized and the activation state changed
+    if (!this.level().isClientSide() && TeleCirServer.getInstance() != null && this.hasCustomName()) {
+      TeleCirServer.getManager().setMapping(this.getUUID(),
+          new CircleRecord(this.getName().getString(), this.level().dimension(), this.position(), this.activated()));
+      Constants.debug("Updated CircleRecord activation state to {} for circle {}", this.activated(), this.getStringUUID());
+    }
   }
 
   @Override
@@ -173,9 +183,12 @@ public class TeleportCircle extends AbstractTeleportCircle {
 //    }
 
     // only render half of the vertices
-    for (int i = 0; i <= rotatedVertices.length; i++) {
-      switch (i) {
-        case 0, 1, 4, 5 -> level.sendParticles(ModParticles.CIRCLE, rotatedVertices[i].x, rotatedVertices[i].y + 0.0625D, rotatedVertices[i].z, 1, 0, 0, 0, 0.01);
+    if (activated() && level.getGameTime() % 2 == 0) {
+      for (int i = 0; i <= rotatedVertices.length; i++) {
+        switch (i) {
+          case 0, 1, 4, 5 -> level.sendParticles(ModParticles.CIRCLE, rotatedVertices[i].x,
+              rotatedVertices[i].y + 0.0625D, rotatedVertices[i].z, 1, 0, 0, 0, 0.01);
+        }
       }
     }
   }

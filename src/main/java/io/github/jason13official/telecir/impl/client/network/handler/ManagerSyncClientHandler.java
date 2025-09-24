@@ -12,6 +12,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import io.github.jason13official.telecir.impl.client.screen.LocationTeleportScreen;
+import net.minecraft.client.Minecraft;
 
 public class ManagerSyncClientHandler {
 
@@ -35,6 +37,20 @@ public class ManagerSyncClientHandler {
     }
 
     Constants.debug("Final Synced Map {}", TeleCirClient.synchronizedRecords);
+
+    // Notify any open LocationTeleportScreen to refresh their LocationList
+    refreshLocationListIfOpen();
+  }
+
+  private static void refreshLocationListIfOpen() {
+    try {
+      if (Minecraft.getInstance().screen instanceof LocationTeleportScreen screen) {
+        Constants.debug("Refreshing LocationList after sync");
+        screen.getLocationList().refreshEntries();
+      }
+    } catch (Exception e) {
+      Constants.debug("Error refreshing LocationList: {}", e.getMessage());
+    }
   }
 
   public static String[] splitResourceLocationSafe(String resourceLocationString) {
