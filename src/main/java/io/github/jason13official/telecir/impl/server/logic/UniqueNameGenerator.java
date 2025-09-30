@@ -1,41 +1,24 @@
-package io.github.jason13official.telecir.impl.server.util;
+package io.github.jason13official.telecir.impl.server.logic;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import net.minecraft.world.level.saveddata.SavedData;
 
-/**
- * A name generator that creates fantasy names using a template-based system with recursive
- * substitution of tagged placeholders. <br /> <a
- * href="https://springhole.net/writing_roleplaying_randomators/asgardyish-names.htm">Reference</a>
- */
-public class CircleNameGenerator {
+public abstract class UniqueNameGenerator extends SavedData {
 
-  private static final int MAX_UNIQUE_ATTEMPTS = 1000;
-  private static final int MAX_RECURSION_ATTEMPTS = 10;
-
-  private final Set<String> usedNames = new HashSet<>();
-  private final Map<String, String[]> vocab = new HashMap<>();
   private final Random random;
+  public final Set<String> usedNames = new HashSet<>();
+  private final Map<String, String[]> vocab = new HashMap<>();
 
-//  public NameGenerator() {
-//    this.random = new Random();
-//    initializeVocabulary();
-//  }
-
-  public CircleNameGenerator(long seed) {
+  public UniqueNameGenerator(long seed) {
     this.random = new Random(seed);
     initializeVocabulary();
   }
+
   private void initializeVocabulary() {
-    // Main template - generates 5 name options
-    vocab.put("FIRST", new String[]{
-        "<options>\n<options>\n<options>\n<options>\n<options>"
-    });
 
     // Name structure options
     vocab.put("options", new String[]{
@@ -110,12 +93,6 @@ public class CircleNameGenerator {
     });
   }
 
-  /**
-   * Gets a random element from the specified array.
-   *
-   * @param array the array to select from
-   * @return a random element from the array, or empty string if array is null/empty
-   */
   private String getRandomElement(String[] array) {
     if (array == null || array.length == 0) {
       return "";
@@ -123,12 +100,6 @@ public class CircleNameGenerator {
     return array[random.nextInt(array.length)];
   }
 
-  /**
-   * Recursively processes a line, replacing all tagged placeholders with random values.
-   *
-   * @param line the line to process
-   * @return the processed line with all tags replaced
-   */
   private String processTemplate(String line) {
     if (line == null || !line.contains("<")) {
       return line;
@@ -156,32 +127,14 @@ public class CircleNameGenerator {
     return line.contains("<") ? processTemplate(line) : line;
   }
 
-  /**
-   * Generates a single fantasy name.
-   *
-   * @return a randomly generated fantasy name
-   */
-  public String generateName() {
+  private String generateName() {
     String[] optionsArray = vocab.get("options");
     String template = getRandomElement(optionsArray);
     return processTemplate(template).trim();
   }
 
-  /**
-   * Generates a unique name that hasn't been used by any other circle.
-   *
-   * <p>This method repeatedly calls {@link #generateName()} until it finds a name that
-   * doesn't exist in the {@code usedNames} set. Given the high variety of the name generator
-   * (hundreds of possible combinations), collisions are extremely rare in practice.
-   *
-   * <p>As a safety measure, if 1000 attempts are made without finding a unique name,
-   * the method will return a generated name with a timestamp suffix to guarantee uniqueness. This
-   * fallback scenario is astronomically unlikely under normal usage.
-   *
-   * @return a unique name that is not present in the {@code usedNames} set
-   */
-  public String generateUniqueName() {
-    for (int attempts = 0; attempts < MAX_UNIQUE_ATTEMPTS; attempts++) {
+  public final String generateUniqueName() {
+    for (int attempts = 0; attempts < 1000; attempts++) {
       String name = generateName();
       if (!usedNames.contains(name)) {
         usedNames.add(name);
@@ -195,81 +148,13 @@ public class CircleNameGenerator {
     return fallbackName;
   }
 
-  /**
-   * Releases a name back to the pool of available names.
-   *
-   * @param name the name to release
-   * @return true if the name was removed, false if it wasn't in the set
-   */
-  public boolean releaseName(String name) {
-    return usedNames.remove(name);
+
+  public final void releaseName(String name) {
+    usedNames.remove(name);
   }
 
-  /**
-   * Adds a name to the used names set.
-   *
-   * @param name the name to mark as used
-   * @return true if the name was added, false if it was already present
-   */
-  public boolean addName(String name) {
-    return usedNames.add(name);
+  public final void blacklistNameForGenerator(String name) {
+    usedNames.add(name);
   }
 
-  /**
-   * Gets the number of currently used names.
-   *
-   * @return the count of used names
-   */
-  public int getUsedNameCount() {
-    return usedNames.size();
-  }
-
-  /**
-   * Checks if a name is currently in use.
-   *
-   * @param name the name to check
-   * @return true if the name is in use, false otherwise
-   */
-  public boolean isNameUsed(String name) {
-    return usedNames.contains(name);
-  }
-
-  /**
-   * Generates multiple fantasy names.
-   *
-   * @param count the number of names to generate
-   * @return a list of generated names
-   */
-  public List<String> generateNames(int count) {
-    List<String> names = new ArrayList<>();
-    for (int i = 0; i < count; i++) {
-      names.add(generateName());
-    }
-    return names;
-  }
-
-  /**
-   * Generates a list of names from the default template (which produces 5 names).
-   *
-   * @return a list of 5 generated names
-   */
-  public List<String> generateNameList() {
-    String template = getRandomElement(vocab.get("FIRST"));
-    String result = processTemplate(template);
-    List<String> names = new ArrayList<>();
-
-    if (result.contains("\n")) {
-      String[] nameArray = result.split("\n");
-      for (String name : nameArray) {
-        String trimmed = name.trim();
-        if (!trimmed.isEmpty()) {
-          names.add(trimmed);
-        }
-      }
-    } else {
-      names.add(result.trim());
-    }
-
-    return names;
-  }
 }

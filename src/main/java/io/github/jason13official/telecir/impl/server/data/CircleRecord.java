@@ -1,27 +1,42 @@
 package io.github.jason13official.telecir.impl.server.data;
 
-import java.util.List;
-import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import oshi.util.tuples.Triplet;
 
-public record CircleRecord(String name, String dimension, Long position, Boolean activated) {
+/**
+ * All data required to recreate a named and activated circle in a dimension at a given position.
+ *
+ * @param name      the name of the circle
+ * @param dimension the dimension the circle is located at
+ * @param position  the specific position the circle is centered on
+ * @param activated whether the circle has been activated or not
+ */
+public record CircleRecord(String name, String dimension, Triplet<Double, Double, Double> position,
+                           Boolean activated) {
 
-  // alternative to canonical constructor
-  public CircleRecord(String name, ResourceKey<Level> dimension, BlockPos position,
-      Boolean activated) {
-    this(name, dimension.location().toString(), position.asLong(), activated);
+  /**
+   * An alternative to the canonical constructor, which accepts the original values
+   * ({@link ResourceKey} and {@link Vec3}) to be encoded into a new record.
+   */
+  public CircleRecord(String name, ResourceKey<Level> dimension, Vec3 position, Boolean activated) {
+    this(name, dimension.location().toString(), new Triplet<>(position.x, position.y, position.z),
+        activated);
   }
 
-//  public CircleRecord {
-//    if (List.of(this.name(), this.dimension(), this.position(), this.activated()).contains(null)) {
-//      throw new IllegalStateException("Cannot accept null for any parameter of CircleRecord");
-//    }
-//  }
+  @Override
+  public String toString() {
+    return "CircleRecord{" +
+        "name='" + name + '\'' +
+        ", dimension='" + dimension + '\'' +
+        ", position=" + formatted(position) +
+        ", activated=" + activated +
+        '}';
+  }
 
-  // alternative to canonical constructor
-  public static CircleRecord of(String name, ResourceKey<Level> dimension, BlockPos position,
-      Boolean activated) {
-    return new CircleRecord(name, dimension.location().toString(), position.asLong(), activated);
+  // (0,0,0)
+  private static String formatted(Triplet<Double, Double, Double> position) {
+    return "(" + position.getA() + "," + position.getB() + "," + position.getC() + ")";
   }
 }

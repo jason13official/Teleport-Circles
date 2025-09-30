@@ -1,8 +1,8 @@
 package io.github.jason13official.telecir.impl.server.network.handler;
 
-import io.github.jason13official.telecir.impl.common.entity.TeleportCircle;
 import io.github.jason13official.telecir.impl.common.network.packet.EntityRenameC2SPacket;
 import io.github.jason13official.telecir.impl.common.network.packet.ManagerSyncS2CPacket;
+import io.github.jason13official.telecir.impl.common.world.entity.TeleportCircle;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.chat.Component;
 

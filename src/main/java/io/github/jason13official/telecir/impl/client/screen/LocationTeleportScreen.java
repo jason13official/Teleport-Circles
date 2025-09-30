@@ -13,6 +13,7 @@ import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
+import oshi.util.tuples.Triplet;
 
 public class LocationTeleportScreen extends Screen {
 
@@ -116,8 +117,12 @@ public class LocationTeleportScreen extends Screen {
     this.minecraft.setScreen(this.lastScreen);
   }
 
-  public void teleportToLocation(UUID uuid, String name, Long location) {
+  public void teleportToLocation(UUID uuid, String name, Triplet<Double, Double, Double> location) {
     TeleportC2SPacket.createAndSend(location);
+  }
+
+  public LocationList getLocationList() {
+    return this.locationList;
   }
 
   private boolean isMouseOverSearchFieldWithPadding(double mouseX, double mouseY) {

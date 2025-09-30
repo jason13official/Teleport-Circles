@@ -7,8 +7,9 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import oshi.util.tuples.Triplet;
 
-public record TeleportC2SPacket(Long position) implements CustomPacketPayload {
+public record TeleportC2SPacket(Triplet<Double, Double, Double> position) implements CustomPacketPayload {
 
   public static final Type<TeleportC2SPacket> TYPE = new Type<>(
       TeleCir.identifier("teleport"));
@@ -16,15 +17,17 @@ public record TeleportC2SPacket(Long position) implements CustomPacketPayload {
       TeleportC2SPacket::write, TeleportC2SPacket::read);
 
   public static TeleportC2SPacket read(RegistryFriendlyByteBuf data) {
-    return new TeleportC2SPacket(data.readLong());
+    return new TeleportC2SPacket(new Triplet<>(data.readDouble(), data.readDouble(), data.readDouble()));
   }
 
-  public static void createAndSend(Long position) {
+  public static void createAndSend(Triplet<Double, Double, Double> position) {
     ClientPlayNetworking.send(new TeleportC2SPacket(position));
   }
 
   public void write(RegistryFriendlyByteBuf data) {
-    data.writeLong(this.position);
+    data.writeDouble(this.position.getA());
+    data.writeDouble(this.position.getB());
+    data.writeDouble(this.position.getC());
   }
 
   @Override

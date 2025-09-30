@@ -1,100 +1,109 @@
 package io.github.jason13official.telecir.impl.server.logic;
 
 import io.github.jason13official.telecir.Constants;
+import io.github.jason13official.telecir.TeleCirServer;
 import io.github.jason13official.telecir.impl.server.data.CircleRecord;
-import io.github.jason13official.telecir.impl.server.util.CircleManagerSerialization;
-import io.github.jason13official.telecir.impl.server.util.CircleNameGenerator;
+import io.github.jason13official.telecir.impl.server.util.CircleRecordStorageHelper;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.saveddata.SavedData;
 
 /**
- * Must be synchronized to the client on updates/players joining level
+ * CircleManager instances should be directly linked to the server instance of the mod
  */
-public class CircleManager extends SavedData {
+public class CircleManager extends UniqueNameGenerator {
 
   private static final Factory<CircleManager> FACTORY = new Factory<CircleManager>(
       CircleManager::new, CircleManager::build, null);
 
-  public CircleNameGenerator generator = null;
   private LinkedHashMap<UUID, CircleRecord> records;
 
-  public CircleManager() {
+  private CircleManager() {
+    this(TeleCirServer.getSeed());
 
-    this.records = new LinkedHashMap<>();
+    Constants.debug("Created new CircleManager instance with server seed");
   }
 
-  public CircleManager(LinkedHashMap<UUID, CircleRecord> records) {
+  public CircleManager(long seed) {
+    this(seed, new LinkedHashMap<>());
 
-    this.records = new LinkedHashMap<>(records);
+    Constants.debug("Created new CircleManager instance with server seed and empty map");
+  }
+
+  public CircleManager(long seed, LinkedHashMap<UUID, CircleRecord> records) {
+    super(seed);
+    this.records = records;
+
+    Constants.debug("Created new CircleManager instance with server seed and filled map");
   }
 
   public static CircleManager build(CompoundTag compoundTag, Provider provider) {
 
-    return new CircleManager(CircleManagerSerialization.loadRecords(compoundTag));
-  }
+    Constants.debug("Building new CircleManager instance from server seed and CompoundTag");
 
-  /**
-   * Has the side effect of initializing our name generator, and blacklisting used names.
-   */
-  public static CircleManager getState(final MinecraftServer server) {
+    LinkedHashMap<UUID, CircleRecord> map = CircleRecordStorageHelper.loadCircles(compoundTag);
 
-    ServerLevel overworld = server.getLevel(ServerLevel.OVERWORLD);
+    Constants.debug("empty map in memory????" + map.isEmpty());
+    Constants.debug("Final Re-Initialized Map: ", map);
 
-    if (overworld == null) {
-      throw new IllegalStateException(
-          CircleManager.class.getSimpleName() + " was unable to retrieve Level.OVERWORLD");
-    }
+//    map.forEach((id, record) -> {
+//      this.blacklistNameForGenerator(record.name());
+//    });
 
-    CircleManager manager = overworld.getDataStorage()
-        .computeIfAbsent(FACTORY, Constants.MOD_ID + "_data");
+    var manager = new CircleManager(TeleCirServer.getSeed(), map);
 
-    long seed = overworld.getSeed();
-    Constants.debug("Constructing new name generator instance with overworld seed {}", seed);
-    manager.generator = new CircleNameGenerator(seed);
-
-    Constants.debug("Adding used names from records to name generator blacklist");
-    manager.getRecords().forEach((id, record) -> manager.generator.addName(record.name()));
-
-    manager.setDirty();
+    map.forEach((id, record) -> {
+      if (!manager.usedNames.contains(record.name())) manager.blacklistNameForGenerator(record.name());
+    });
 
     return manager;
   }
 
-  @Override
-  public CompoundTag save(CompoundTag tag, Provider registries) {
-    return CircleManagerSerialization.storeRecords(this.records);
+  public static CircleManager getState(final MinecraftServer server) {
+
+    ServerLevel overworld = server.getLevel(ServerLevel.OVERWORLD);
+
+    assert overworld != null;
+    CircleManager state = overworld.getDataStorage().computeIfAbsent(FACTORY, Constants.MOD_ID);
+    state.setDirty();
+
+    return state;
   }
 
   public LinkedHashMap<UUID, CircleRecord> getRecords() {
     return records;
   }
 
-  /**
-   * Called when handling sync packet on client to start with a fresh map
-   */
-  public CircleManager newMap() {
+  public void setMapping(UUID id, CircleRecord record) {
+    blacklistNameForGenerator(record.name());
+    records.put(id, record);
+
+    Constants.debug("mapped {} {}", id, record);
+  }
+
+  public CircleManager dereference() {
     this.records = new LinkedHashMap<>();
     return this;
   }
 
-  public void addRecord(UUID uuid, CircleRecord record) {
-    records.put(uuid, record);
+  public void dereference(UUID id) {
+    if (this.records.containsKey(id)) {
+
+      // remove returns the last mapped value. we checked that the record existed,
+      // so we should expect a non-null return
+      CircleRecord record = this.records.remove(id);
+
+      this.releaseName(record.name());
+
+      Constants.debug("dereferenced {} {}", id, record);
+    }
   }
 
   @Override
-  public String toString() {
-    return "CircleManager{" +
-        "records=" + records +
-        '}';
-  }
-
-  public void dereference(final UUID uuid, String name) {
-    this.records.remove(uuid);
-    this.generator.releaseName(name);
+  public CompoundTag save(CompoundTag tag, Provider registries) {
+    return CircleRecordStorageHelper.storeCircles(this.records);
   }
 }
