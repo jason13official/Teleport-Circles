@@ -27,7 +27,7 @@ public class TeleCir implements ModInitializer {
   public static boolean DEBUG = false;
 
   public static ResourceLocation identifier(String path) {
-    return ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, path);
+    return new ResourceLocation(Constants.MOD_ID, path);
   }
 
   private static void registerResourceManagerReloadListeners() {

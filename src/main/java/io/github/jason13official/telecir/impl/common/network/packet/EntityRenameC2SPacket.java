@@ -5,19 +5,23 @@ import io.github.jason13official.telecir.impl.server.network.handler.EntityRenam
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ServerPacketListener;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 
-public record EntityRenameC2SPacket(UUID uuid, String name) implements CustomPacketPayload {
+public record EntityRenameC2SPacket(UUID uuid, String name) implements FabricPacket {
 
-  public static final Type<EntityRenameC2SPacket> TYPE = new Type<>(
-      TeleCir.identifier("rename"));
-  public static final StreamCodec<RegistryFriendlyByteBuf, EntityRenameC2SPacket> CODEC = StreamCodec.ofMember(
-      EntityRenameC2SPacket::write, EntityRenameC2SPacket::read);
+//  public static final Type<EntityRenameC2SPacket> TYPE = new Type<>(
+//      TeleCir.identifier("rename"));
+//  public static final StreamCodec<FriendlyByteBuf, EntityRenameC2SPacket> CODEC = StreamCodec.ofMember(
+//      EntityRenameC2SPacket::write, EntityRenameC2SPacket::read);
 
-  public static EntityRenameC2SPacket read(RegistryFriendlyByteBuf data) {
+  public static EntityRenameC2SPacket read(FriendlyByteBuf data) {
 
     UUID id = data.readUUID();
 
@@ -31,7 +35,7 @@ public record EntityRenameC2SPacket(UUID uuid, String name) implements CustomPac
     ClientPlayNetworking.send(new EntityRenameC2SPacket(uuid, name));
   }
 
-  public void write(RegistryFriendlyByteBuf data) {
+  public void write(FriendlyByteBuf data) {
 
     data.writeUUID(this.uuid());
 
@@ -41,11 +45,21 @@ public record EntityRenameC2SPacket(UUID uuid, String name) implements CustomPac
   }
 
   @Override
-  public Type<? extends CustomPacketPayload> type() {
-    return TYPE;
+  public PacketType<?> getType() {
+    return null;
   }
 
-  public void handleOnServer(ServerPlayNetworking.Context context) {
-    EntityRenameServerHandler.handle(this, context);
+  public static void handleOnServer(FabricPacket fabricPacket, ServerPlayer player,
+      PacketSender packetSender) {
+    EntityRenameServerHandler.handle(fabricPacket, player, packetSender);
   }
+
+  //  @Override
+//  public Type<? extends CustomPacketPayload> type() {
+//    return TYPE;
+//  }
+
+//  public void handleOnServer(MinecraftServer server) {
+//    EntityRenameServerHandler.handle(this, server);
+//  }
 }

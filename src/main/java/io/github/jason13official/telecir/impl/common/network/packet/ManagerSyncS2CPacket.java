@@ -11,10 +11,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+//import net.minecraft.network.codec.StreamCodec;
+//import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,14 +27,15 @@ import net.minecraft.world.entity.Entity;
 import oshi.util.tuples.Triplet;
 
 public record ManagerSyncS2CPacket(int size, UUID[] uuids, String[] names,
-                                   Triplet<Double, Double, Double>[] positions, Boolean[] activated, String[] dimensions) implements CustomPacketPayload {
+                                   Triplet<Double, Double, Double>[] positions, Boolean[] activated, String[] dimensions) implements
+    FabricPacket {
 
-  public static final Type<ManagerSyncS2CPacket> TYPE = new Type<>(
-      TeleCir.identifier("manager"));
-  public static final StreamCodec<RegistryFriendlyByteBuf, ManagerSyncS2CPacket> CODEC = StreamCodec.ofMember(
-      ManagerSyncS2CPacket::write, ManagerSyncS2CPacket::read);
+//  public static final Type<ManagerSyncS2CPacket> TYPE = new Type<>(
+//      TeleCir.identifier("manager"));
+//  public static final StreamCodec<FriendlyByteBuf, ManagerSyncS2CPacket> CODEC = StreamCodec.ofMember(
+//      ManagerSyncS2CPacket::write, ManagerSyncS2CPacket::read);
 
-  public static ManagerSyncS2CPacket read(RegistryFriendlyByteBuf data) {
+  public static ManagerSyncS2CPacket read(FriendlyByteBuf data) {
 
     int size = data.readVarInt();
 
@@ -92,7 +98,7 @@ public record ManagerSyncS2CPacket(int size, UUID[] uuids, String[] names,
     ServerPlayNetworking.send(player, packet);
   }
 
-  public void write(RegistryFriendlyByteBuf data) {
+  public void write(FriendlyByteBuf data) {
 
     data.writeVarInt(size());
 
@@ -110,11 +116,21 @@ public record ManagerSyncS2CPacket(int size, UUID[] uuids, String[] names,
   }
 
   @Override
-  public Type<? extends CustomPacketPayload> type() {
-    return TYPE;
+  public PacketType<?> getType() {
+    return null;
   }
 
-  public void handleOnClient(ClientPlayNetworking.Context context) {
-    ManagerSyncClientHandler.handle(this, context);
+  public static void handleOnClient(Minecraft minecraft, ClientPacketListener clientPacketListener,
+      FriendlyByteBuf friendlyByteBuf, PacketSender packetSender) {
+    ManagerSyncClientHandler.handle(read(friendlyByteBuf));
   }
+
+//  @Override
+//  public Type<? extends CustomPacketPayload> type() {
+//    return TYPE;
+//  }
+
+//  public void handleOnClient() {
+//    ManagerSyncClientHandler.handle(this);
+//  }
 }

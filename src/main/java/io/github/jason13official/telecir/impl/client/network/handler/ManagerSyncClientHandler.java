@@ -17,7 +17,7 @@ import net.minecraft.client.Minecraft;
 
 public class ManagerSyncClientHandler {
 
-  public static void handle(ManagerSyncS2CPacket packet, ClientPlayNetworking.Context context) {
+  public static void handle(ManagerSyncS2CPacket packet) {
 
     TeleCirClient.synchronizedRecords = new LinkedHashMap<>();
     for (int i = 0; i < packet.size(); i++) {
@@ -28,7 +28,7 @@ public class ManagerSyncClientHandler {
 
       // ResourceKey#create is supported by a ConcurrentMap, and utilizes #computeIfAbsent.
       ResourceKey<Level> levelResourceKey = ResourceKey.create(Registries.DIMENSION,
-          ResourceLocation.fromNamespaceAndPath(parts[0], parts[1]));
+          new ResourceLocation(parts[0], parts[1]));
 
       TeleCirClient.synchronizedRecords.put(packet.uuids()[i],
           new CircleRecord(packet.names()[i], levelResourceKey,
